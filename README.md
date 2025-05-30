@@ -6,8 +6,12 @@ This repository contains the code and gesture type annotations (coming soon) use
 The repository provides:
 
 * Preprocessing scripts for the dataset used in our experiments
-* Step-by-step code and prompt templates for running gesture explanation tasks with multimodal large language models (MLLMs)
-* Evaluation scripts
+* Step-by-step code and prompt templates for running gesture explanation tasks with multimodal large language models (MLLMs), including:
+  - [GPT-4o](https://platform.openai.com/docs/models/gpt-4o) (OpenAI)
+  - [Gemini 1.5 Pro](https://deepmind.google/models/gemini/pro) (Google DeepMind)
+  - [Qwen2.5-VL-7B-Instruct](https://github.com/QwenLM/Qwen2.5-VL) (Alibaba)
+  - [LLaVA-NeXT-Video](https://github.com/LLaVA-VL/LLaVA-NeXT) (LLaVA Project)
+* Evaluation scripts (llm-as-a-judge)
 
 ## Repository Structure
 
@@ -111,12 +115,12 @@ If you find this work useful, please cite our paper:
 
 ```bibtex
 @inproceedings{nishida2025domultimodal,
-    title={Do Multimodal Large Language Models Truly See What We Point At? Investigating Indexical, Iconic, and Symbolic Gesture Comprehension}
+    title={Do Multimodal Large Language Models Truly See What We Point At? Investigating Indexical, Iconic, and Symbolic Gesture Comprehension},
     author={Nishida, Noriki and,
             Inoue, Koji and
             Nakayama, Hideki and
             Bono, Mayumi and
-            Takanashi, Katsuya}
+            Takanashi, Katsuya},
     booktitle={Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL)},
     year={2025}
 }
