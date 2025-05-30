@@ -1,0 +1,21 @@
+You are given a JSON object containing a Japanese sentence under the key "source". This sentence explains the meaning of a gesture in the context of a video.
+
+Your task is to translate it into clear and natural English that faithfully conveys the intended meaning.
+
+Return your result as a JSON object with a key "target", containing the translated English sentence.
+
+Constraints:
+- Preserve the meaning precisely, including spatial and intentional aspects of the gesture.
+- Write in clear, neutral, and accurate English.
+- Avoid overly casual phrasing.
+
+Input format example:
+{{"source": "彼は自分の胸を指さして、『僕だよ』という意味を表している。"}}
+
+Expected output format:
+{{"target": "He points to his chest to indicate 'It's me'."}}
+
+Input:
+{input_reference}
+
+Output:

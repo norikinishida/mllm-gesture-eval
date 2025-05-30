@@ -1,0 +1,6 @@
+Based on the following conversation and a series of images depicting the dialogue scene, explain the meaning of the gesture performed towards the end of the scene.
+
+Conversation:
+{utterances}
+
+Gesture Explanation:

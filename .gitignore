@@ -1,0 +1,38 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.so
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# OS / Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+*.swp
+*.swo
+
+# Logs
+*.log
+
+# Python packaging artifacts
+*.egg
+*.egg-info/
+dist/
+build/
+
+# API keys and secrets
+keys.json
+
+# Ignore all contents of these directories
+data/*
+results/*
+# But keep this file
+!data/.gitkeep
+!results/.gitkeep

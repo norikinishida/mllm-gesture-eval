@@ -1,0 +1,22 @@
+You are given a JSON object containing a list of Japanese utterances under the key "source".
+
+Your task is to translate each utterance into natural and coherent English, preserving the conversational flow and the 1-to-1 alignment between input and output.
+
+Return your result as a JSON object with a key "target", which is a list of translated English utterances.
+
+Constraints:
+- Maintain 1-to-1 correspondence: each Japanese utterance maps to one English utterance.
+- Use natural, fluent spoken English (not too casual, not too formal).
+- Translate deictic expressions (e.g., pointing, directions) carefully, as they relate to gestures in a video context.
+- Do not add or remove utterances.
+
+Input format example:
+{{"source": ["scA: こっちこっち！", "v0: え？どこ？", "scA: あそこにあるじゃん、赤いやつ。"]}}
+
+Expected output format:
+{{"target": ["scA: Over here!", "v0: Huh? Where?", "scA: It's right there — the red one."]}}
+
+Input utterances:
+{input_utterances}
+
+Output:
