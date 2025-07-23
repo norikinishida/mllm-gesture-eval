@@ -1,7 +1,7 @@
 # mllm-gesture-eval
 
-This repository contains the code and gesture type annotations (coming soon) used in our paper:
-**"Do Multimodal Large Language Models Truly See What We Point At? Investigating Indexical, Iconic, and Symbolic Gesture Comprehension"** (Nishida et al., ACL 2025).
+This repository contains the code and gesture type annotations used in our paper:
+[**"Do Multimodal Large Language Models Truly See What We Point At? Investigating Indexical, Iconic, and Symbolic Gesture Comprehension"**](https://aclanthology.org/2025.acl-short.40/) (Nishida et al., ACL 2025).
 
 The repository provides:
 
@@ -195,15 +195,25 @@ This project is licensed under the MIT License.
 If you find this work useful, please cite our paper:
 
 ```bibtex
-@inproceedings{nishida2025domultimodal,
-    title={Do Multimodal Large Language Models Truly See What We Point At? Investigating Indexical, Iconic, and Symbolic Gesture Comprehension},
-    author={Nishida, Noriki and,
-            Inoue, Koji and
-            Nakayama, Hideki and
-            Bono, Mayumi and
-            Takanashi, Katsuya},
-    booktitle={Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL 2025)},
-    year={2025}
+@inproceedings{nishida-etal-2025-multimodal,
+    title = "Do Multimodal Large Language Models Truly See What We Point At? Investigating Indexical, Iconic, and Symbolic Gesture Comprehension",
+    author = "Nishida, Noriki  and
+      Inoue, Koji  and
+      Nakayama, Hideki  and
+      Bono, Mayumi  and
+      Takanashi, Katsuya",
+    editor = "Che, Wanxiang  and
+      Nabende, Joyce  and
+      Shutova, Ekaterina  and
+      Pilehvar, Mohammad Taher",
+    booktitle = "Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (Volume 2: Short Papers)",
+    month = jul,
+    year = "2025",
+    address = "Vienna, Austria",
+    publisher = "Association for Computational Linguistics",
+    url = "https://aclanthology.org/2025.acl-short.40/",
+    pages = "514--524",
+    ISBN = "979-8-89176-252-7"
 }
 ```
 
