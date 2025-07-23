@@ -16,30 +16,27 @@ from transformers import LlavaNextVideoForConditionalGeneration, LlavaNextVideoP
 from qwen_vl_utils import process_vision_info
 import torch
 
-import utils
-
 
 class OpenAIMultimodalModel:
     def __init__(self, model_name):
         self.model_name = model_name
 
-        self.client = OpenAI(api_key=utils.read_api_key("openai"))
+        self.client = OpenAI()
 
-    def load_frames(self, path_frames, base_filename):
-        filenames = os.listdir(path_frames)
-        filenames = [n for n in filenames if n.startswith(base_filename + ".frame_")]
+    def load_frames(self, path_frames_dir):
+        filenames = os.listdir(path_frames_dir)
         filenames = sorted(filenames, key=lambda n: int(n.split("_")[-1].split(".")[0]))
 
         frames = []
         for filename in filenames:
-            full_path = os.path.join(path_frames, filename)
+            full_path = os.path.join(path_frames_dir, filename)
             with open(full_path, "rb") as f:
                 frame = base64.b64encode(f.read()).decode("utf-8")
                 frames.append(frame)
         return frames
 
-    def generate(self, prompt, path_frames, base_filename):
-        frames = self.load_frames(path_frames=path_frames, base_filename=base_filename)
+    def generate(self, prompt, path_frames_dir):
+        frames = self.load_frames(path_frames_dir=path_frames_dir)
         response = self.client.chat.completions.create(
            model=self.model_name,
            messages=[
@@ -77,24 +74,23 @@ class GeminiMultimodalModel:
     def __init__(self, model_name):
         self.model_name = model_name
 
-        genai.configure(api_key=utils.read_api_key("gemini"))
+        genai.configure()
         self.client = genai.GenerativeModel(model_name)
 
-    def load_frames(self, path_frames, base_filename):
-        filenames = os.listdir(path_frames)
-        filenames = [n for n in filenames if n.startswith(base_filename + ".frame_")]
+    def load_frames(self, path_frames_dir):
+        filenames = os.listdir(path_frames_dir)
         filenames = sorted(filenames, key=lambda n: int(n.split("_")[-1].split(".")[0]))
 
         frames = []
         for filename in filenames:
-            full_path = os.path.join(path_frames, filename)
+            full_path = os.path.join(path_frames_dir, filename)
             frame = Image.open(full_path)
             frames.append(frame)
         return frames
  
     @retry(wait=wait_random_exponential(min=1, max=60), stop=stop_after_attempt(10))
-    def generate(self, prompt, path_frames, base_filename):
-        frames = self.load_frames(path_frames=path_frames, base_filename=base_filename)
+    def generate(self, prompt, path_frames_dir):
+        frames = self.load_frames(path_frames_dir=path_frames_dir)
         response = self.client.generate_content(
             [prompt] + frames,
             generation_config={"temperature": 0}
@@ -126,19 +122,15 @@ class QwenMultimodalModel:
             max_pixels=self.max_pixels
         )
 
-    def load_frame_paths(self, path_frames, base_filename):
-        filenames = os.listdir(path_frames)
-        filenames = [n for n in filenames if n.startswith(base_filename + ".frame_")]
+    def load_frame_paths(self, path_frames_dir):
+        filenames = os.listdir(path_frames_dir)
         filenames = sorted(filenames, key=lambda n: int(n.split("_")[-1].split(".")[0]))
-        filepaths = [os.path.join(path_frames, n) for n in filenames]
+        filepaths = [os.path.join(path_frames_dir, n) for n in filenames]
         filepaths = filepaths[-self.max_frames:]
         return filepaths
 
-    def generate(self, prompt, path_frames, base_filename):
-        frame_paths = self.load_frame_paths(
-            path_frames=path_frames,
-            base_filename=base_filename
-        )
+    def generate(self, prompt, path_frames_dir):
+        frame_paths = self.load_frame_paths(path_frames_dir=path_frames_dir)
 
         messages = [
             {
@@ -209,25 +201,21 @@ class LlavaMultimodalModel:
 
         self.processor = LlavaNextVideoProcessor.from_pretrained(model_name)
 
-    def load_frames(self, path_frames, base_filename):
-        filenames = os.listdir(path_frames)
-        filenames = [n for n in filenames if n.startswith(base_filename + ".frame_")]
+    def load_frames(self, path_frames_dir):
+        filenames = os.listdir(path_frames_dir)
         filenames = sorted(filenames, key=lambda n: int(n.split("_")[-1].split(".")[0]))
 
         frames = []
         for filename in filenames:
-            full_path = os.path.join(path_frames, filename)
+            full_path = os.path.join(path_frames_dir, filename)
             frame = Image.open(full_path)
             frames.append(frame)
 
         frames = np.stack([np.array(f.convert("RGB")) for f in frames])
         return frames
 
-    def generate(self, prompt, path_frames, base_filename):
-        frames = self.load_frames(
-            path_frames=path_frames,
-            base_filename=base_filename
-        )
+    def generate(self, prompt, path_frames_dir):
+        frames = self.load_frames(path_frames_dir=path_frames_dir)
 
         messages = [
             {
@@ -277,7 +265,7 @@ class LlavaMultimodalModel:
 
 class OpenAIModel:
     def __init__(self, model_name="gpt-4o-mini"):
-        self.client = OpenAI(api_key=utils.read_api_key("openai"))
+        self.client = OpenAI()
         self.model_name = model_name
 
     def generate(self, prompt):        

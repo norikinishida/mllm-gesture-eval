@@ -1,7 +1,7 @@
 # mllm-gesture-eval
 
 This repository contains the code and gesture type annotations (coming soon) used in our paper:
-**"Do Multimodal Large Language Models Truly See What We Point At? Investigating Indexical, Iconic, and Symbolic Gesture Comprehension"** (ACL 2025, *to appear*)
+**"Do Multimodal Large Language Models Truly See What We Point At? Investigating Indexical, Iconic, and Symbolic Gesture Comprehension"** (Nishida et al., ACL 2025).
 
 The repository provides:
 
@@ -38,21 +38,102 @@ We recommend using the latest version of Python (>=3.10) and installing dependen
 pip install -r requirements.txt
 ```
 
-## API Key Configuration
+## Dataset Format
 
-Some scripts require access to external APIs (e.g., OpenAI, Gemini).  
-Before running them, please create a file named `keys.json` in the `codes/` directory, and include your API keys in the following format:
+The dataset used in our experiments is formatted as a JSON list, where each entry corresponds to a gesture instance. Each entry contains:
+- the gesture annotations,
+- the utterances overlapping with the gesture time span, and
+- the video clip overlapping with the gesture time span.
 
+Here is an example entry:
 ```json
 {
-  "openai": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  "gemini": "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXX"
+  "example_key": "data04_264.6_266.935",
+  "corresponding_utterances": [
+    {
+      "id": "a7418",
+      "time_span": [264.812, 266.511],
+      "speaker": "scA",
+      "utterance": "こんなでかい天文台,知ってます?"
+    },
+    ...
+  ],
+  "gesture": {
+    "id": "a8042",
+    "time_span": [264.6, 266.935],
+    "gesturer": "scA",
+    "position": "hand",
+    "perspective": "intentional",
+    "description": "客に対し，模型への注意を向けさせ，「天文台」が指示する対象を明示する",
+    "gesture_type": "Indexical"
+  }
 }
 ```
 
-Each script will automatically load the required key based on the --llm_type argument (e.g., openai, gemini, qwen).
+### Field Descriptions:
 
-🔐 Note: Do not share your `keys.json` publicly. It is listed in `.gitignore` by default.
+- `example_key` (str): Unique identifier for the gesture instance
+- `corresponding_utterances` (list[dict]): List of utterance objects, each containing:
+  - `id` (str): Unique ID for the utterance (e.g., ELAN annotation ID)
+  - `time_span` (tuple[float]): Start and end time in seconds
+  - `speaker` (str): Speaker label (e.g., `v01`, `scA`)
+  - `utterance` (str): Transcribed text of the utterance
+- `gesture` (dict): Object containing gesture annotations:
+  - `id` (str): Unique ID for the gesture annotation (e.g., ELAN annotation ID)
+  - `time_span` (tuple[float]): Start and end time of the gesture in seconds
+  - `gesturer` (str): Identifier of the person performing the gesture (e.g., `scA`)
+  - `position` (str): Body part used in the gesture (e.g., `hand`)
+  - `perspective` (str): Indicates the perspective used to write the `description`: (e.g., `intentional`)
+  - `description` (str): Gesture description (i.e., *relevant annotation*)
+  - `gesture_type` (str): Gesture types (e.g., `Indexical`, `Iconic`, `Symbolic`)
+
+### Frame Image Layout:
+
+Each gesture instance is also associated with a directory of extracted frame images.  
+The expected directory structure is:
+
+
+```
+<dataset_dir>/
+├── dataset.json
+└── frames/
+    └── <example_key>/
+        ├── <example_key>.frame_000.jpg
+        ├── <example_key>.frame_001.jpg
+        ├── <example_key>.frame_002.jpg
+        └── ...
+```
+
+For example, if `example_key = "data05_449.382_453.557"`, the expected frame image files are located at:
+
+```
+<dataset_dir>/
+├── dataset.json
+└── frames/
+    └── data05_449.382_453.557/
+        ├── data05_449.382_453.557.frame_000.jpg
+        ├── data05_449.382_453.557.frame_001.jpg
+        ├── data05_449.382_453.557.frame_002.jpg
+        └── ...
+```
+
+These frames are used as visual input to multimodal LLMs.
+
+### ⚠️ Dataset Availability:
+
+Miraikan SC Corpus, the dataset used in our paper, is currently undergoing ethical review and preparation for public release.  
+We plan to make the dataset available upon completion of this process.
+
+In the meantime, you may prepare your own dataset in the same format and run the full pipeline as described.  
+To use your own dataset, format the JSON and frame directory as described above and place them under:
+
+```
+data/your_dataset_name/
+├── dataset.json
+└── frames/
+```
+
+You can then follow the steps in the [Usage](#usage) section (from Step 2) to run the full evaluation pipeline.
 
 ## Usage
 
@@ -67,23 +148,23 @@ Each script will automatically load the required key based on the --llm_type arg
 
    ```bash
    cd codes
-   python step1_generate.py --llm_type ${LLM_TYPE} --examples ${EXAMPLES} --results_dir ${RESULTS_DIR} --prefix ${MY_PREFIX}
+   python step1_generate.py --llm_type ${LLM_TYPE} --dataset ${DATASET} --results_dir ${RESULTS_DIR} --prefix ${MY_PREFIX}
    ```
 
    The script requires you to specify several environment variables:
 
-   * `EXAMPLES`: Path to the input preprocessed dataset (JSON file)
-   * `RESULTS_DIR`: Directory where results will be stored
    * `LLM_TYPE`: Backend MLLM to use (e.g., `openai`, `gemini`, `qwen`, `llava`)
+   * `DATASET`: Path to the input preprocessed dataset (JSON file)
+   * `RESULTS_DIR`: Directory where results will be stored
    * `MY_PREFIX`: Identifier for the experiment version
 
    Example:
 
    ```bash
-   EXAMPLES=<path to this repository>/data/mscc/v1/examples.json
-   RESULTS_DIR=<path to this repository>/results
    LLM_TYPE=openai
-   MY_PREFIX=hoge
+   DATASET=<path to this repository>/data/mscc/v1/dataset.json
+   RESULTS_DIR=<path to this repository>/results
+   MY_PREFIX=example
    ```
 
 3. **Evaluate the explanations using LLMs** (also from inside the `codes/` directory):
@@ -121,7 +202,7 @@ If you find this work useful, please cite our paper:
             Nakayama, Hideki and
             Bono, Mayumi and
             Takanashi, Katsuya},
-    booktitle={Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL)},
+    booktitle={Proceedings of the 63rd Annual Meeting of the Association for Computational Linguistics (ACL 2025)},
     year={2025}
 }
 ```
@@ -129,4 +210,4 @@ If you find this work useful, please cite our paper:
 ## Contact
 
 For any questions or issues, please contact:
-**Noriki Nishida** – nishidanoriki\[at]riken.jp
+**Noriki Nishida** – noriki.nishida\[at]riken.jp

@@ -31,6 +31,7 @@ build/
 keys.json
 
 # Ignore all contents of these directories
+_*
 data/*
 results/*
 # But keep this file

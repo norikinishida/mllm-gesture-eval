@@ -12,12 +12,12 @@ def main(args):
     path_input_file = args.input_file
     path_output_file = args.output_file
 
-    examples = []
+    dataset = []
     with open(path_input_file) as f:
         for line in f.readlines():
             example = json.loads(line.strip())
-            examples.append(example)
-    print(f"# Examples: {len(examples)}")
+            dataset.append(example)
+    print(f"# Examples: {len(dataset)}")
 
     prompt_template = utils.read_prompt_template(prompt_template_name)
 
@@ -26,14 +26,14 @@ def main(args):
     evaluate(
         prompt_template=prompt_template,
         model=model,
-        examples=examples,
+        dataset=dataset,
         path_output_file=path_output_file,
     )
 
     print("Done.")
 
 
-def evaluate(prompt_template, model, examples, path_output_file):
+def evaluate(prompt_template, model, dataset, path_output_file):
 
     # # XXX
     # translator = OpenAIModel(model_name="gpt-4o-mini")
@@ -41,7 +41,7 @@ def evaluate(prompt_template, model, examples, path_output_file):
 
     with open(path_output_file, "w") as f:
 
-        for example in tqdm(examples):
+        for example in tqdm(dataset):
 
             # Get input elements
             gesture_type = example["gesture_type"]

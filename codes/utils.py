@@ -1,7 +1,22 @@
 import datetime
 import io
 import json
+import logging
 import os
+import sys
+
+
+def set_logger(filename, overwrite=False):
+    if os.path.exists(filename) and not overwrite:
+        logging.info("%s already exists." % filename)
+        do_remove = input("Delete the existing log file? [y/n]: ")
+        if (not do_remove.lower().startswith("y")) and (not len(do_remove) == 0):
+            logging.info("Done.")
+            sys.exit(0)
+
+    root_logger = logging.getLogger()
+    handler = logging.FileHandler(filename, "w")
+    root_logger.addHandler(handler)
 
 
 def get_current_time():
@@ -32,12 +47,6 @@ def mkdir(path, newdir=None):
     if not os.path.exists(target):
         os.makedirs(target)
         print("Created a new directory: %s" % target)
-
-
-def read_api_key(llm_type, key_path="keys.json"):
-    with open(key_path, "r") as f:
-        keys = json.load(f)
-    return keys.get(llm_type)
 
 
 def read_prompt_template(name):
@@ -94,4 +103,7 @@ def safe_json_loads(generated_text, fallback=None, list_type=False):
 
     return json_obj
 
- 
+
+def pretty_format_dict(dct):
+    return "{}".format(json.dumps(dct, indent=4))
+

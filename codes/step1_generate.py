@@ -1,5 +1,6 @@
 import argparse
 import json
+import logging
 import os
 
 from tqdm import tqdm
@@ -8,27 +9,34 @@ from models import OpenAIMultimodalModel, GeminiMultimodalModel, QwenMultimodalM
 from models import OpenAIModel
 import utils
 
-
 def main(args):
     llm_type = args.llm_type
     prompt_template_name = args.prompt_template
-    path_examples = args.examples
+    path_dataset = args.dataset
     path_results_dir = args.results_dir
     prefix = args.prefix
     if prefix is None:
         prefix = utils.get_current_time()
 
-    path_frames = os.path.join(os.path.dirname(path_examples), "frames")
+    path_frames_root = os.path.join(os.path.dirname(path_dataset), "frames")
 
     path_output_dir = os.path.join(path_results_dir, prefix)
     utils.mkdir(path_output_dir)
 
     ###########
+    # Set logger
+    ###########
+
+    utils.set_logger(path_output_dir+ "/generation.log")
+    logging.info(utils.pretty_format_dict(vars(args)))
+
+    ###########
     # Get gesture examples
     ###########
 
-    examples = utils.read_json(path_examples)
-    print(f"# Examples: {len(examples)}")
+    dataset = utils.read_json(path_dataset)
+
+    logging.info(f"# Examples: {len(dataset)}")
 
     ###########
     # Get a model
@@ -46,6 +54,7 @@ def main(args):
         model = LlavaMultimodalModel(model_name="llava-hf/LLaVA-NeXT-Video-7B-hf")
     else:
         raise Exception(f"Invalid llm_type: {llm_type}")
+
     model.llm_type = llm_type
 
     ###########
@@ -55,15 +64,17 @@ def main(args):
     generate(
         prompt_template=prompt_template,
         model=model,
-        examples=examples,
-        path_frames=path_frames,
-        path_output_file=os.path.join(path_output_dir, "results.jsonl"),
+        dataset=dataset,
+        path_frames_root=path_frames_root,
+        path_output_dir=path_output_dir
     )
 
-    print("Done.")
+    logging.info("Done.")
 
 
-def generate(prompt_template, model, examples, path_frames, path_output_file):
+def generate(prompt_template, model, dataset, path_frames_root, path_output_dir):
+        
+    path_output_file = os.path.join(path_output_dir, "results.jsonl")
 
     # # XXX
     # translator = OpenAIModel(model_name="gpt-4o-mini")
@@ -71,16 +82,18 @@ def generate(prompt_template, model, examples, path_frames, path_output_file):
 
     with open(path_output_file, "w") as f:
 
-        for example in tqdm(examples):
+        for example in tqdm(dataset):
+
+            example_key = example["example_key"]
 
             # Get input elements
             utterances = example["corresponding_utterances"]
-            video_filename = example["corresponding_video"]
             # physical_perspective_description = example["gesture"]["physical_perspective_description"]
             # gesture_type = example["gesture"]["gesture_type"]
 
             # Preprocess the input elements
-            utterances = preprocess_utterances(utterances=utterances)
+            utterances = [f"{u['speaker']}: {u['utterance']}" for u in utterances]
+            utterances = "\n".join(utterances)
 
             # # XXX
             # trans_prompt = translation_prompt_template.format(input_utterances={"source": utterances.split("\n")})
@@ -95,19 +108,18 @@ def generate(prompt_template, model, examples, path_frames, path_output_file):
             # prompt = prompt_template # default without dialogue
             # prompt = prompt_template.format(utterances=utterances) # default without vision
 
-            print("++++++++++++++++++++++")
-            print(prompt)
-            print("++++++++++++++++++++++")
+            logging.info("++++++++++++++++++++++")
+            logging.info(prompt)
+            logging.info("++++++++++++++++++++++")
 
             generated_text = model.generate(
                 prompt=prompt,
-                path_frames=path_frames,
-                base_filename=video_filename.replace(".mp4", "")
+                path_frames_dir=os.path.join(path_frames_root, example_key)
             )
 
-            print("----------------------")
-            print(generated_text)
-            print("----------------------")
+            logging.info("----------------------")
+            logging.info(generated_text)
+            logging.info("----------------------")
 
             # Transform to the output format
             result = {
@@ -122,17 +134,16 @@ def generate(prompt_template, model, examples, path_frames, path_output_file):
             f.write(json_str + "\n")
 
 
-def preprocess_utterances(utterances):
-    utterances = [f"{u['speaker']}: {u['utterance']}" for u in utterances]
-    utterances = "\n".join(utterances)
-    return utterances
-
-
 if __name__ == "__main__":
+    logging.basicConfig(
+        format="%(asctime)s - %(levelname)s - %(name)s - %(message)s",
+        level=logging.INFO
+    )
+
     parser = argparse.ArgumentParser()
     parser.add_argument("--llm_type", type=str, required=True)
     parser.add_argument("--prompt_template", type=str, default="generation")
-    parser.add_argument("--examples", type=str, required=True)
+    parser.add_argument("--dataset", type=str, required=True)
     parser.add_argument("--results_dir", type=str, required=True)
     parser.add_argument("--prefix", type=str, default=None)
     args = parser.parse_args()

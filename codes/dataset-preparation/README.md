@@ -2,7 +2,11 @@
 
 This directory contains preprocessing scripts for preparing the dataset used in our gesture explanation experiments.
 
-## Steps
+📦 **Coming soon.**  
+Miraikan SC Corpus, the dataset used in our paper, is currently undergoing ethical review and preparation for public release.  
+We plan to make the dataset available upon completion of this process.
+
+<!-- ## Steps
 
 The dataset will be constructed through the following steps:
 
@@ -18,8 +22,6 @@ The dataset will be constructed through the following steps:
    - Dialogue utterances
    - Video frame sequences (paths)
    - Gesture type labels (e.g., Indexical, Iconic, Symbolic)
-   - Reference gesture descriptions
+   - Reference gesture descriptions -->
 
-📦 **Coming soon.**  
-Detailed instructions and data format specifications will be added once the release is finalized.
 
